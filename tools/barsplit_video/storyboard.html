@@ -1,0 +1,265 @@
+<title>Rear Bar Split Storyboard</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;800&family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: a film strip of vertical frames, read left to right, with a timeline on top and the numbers underneath. Dark only, to match the renders. */
+:root {
+  --bg: #15181d; --panel: #1d2128; --line: #2c323c; --fg: #e6e9ee; --dim: #9aa3b0;
+  --lr: #22b8f0; --rr: #ff6b1a; --good: #8fd14f;
+  --display: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", Consolas, monospace;
+  color-scheme: dark;
+}
+body { background: var(--bg); color: var(--fg); font: 15px/1.5 var(--body); }
+.wrap { max-width: 1240px; margin: 0 auto; padding-block: 28px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1 { font: 800 clamp(34px, 6vw, 56px)/0.95 var(--display); text-transform: uppercase; letter-spacing: 0.01em; margin: 0; text-wrap: balance; }
+h1 .lr { color: var(--lr); } h1 .rr { color: var(--rr); }
+h2 { font: 600 22px/1.1 var(--display); text-transform: uppercase; letter-spacing: 0.06em; color: var(--dim); margin: 40px 0 14px; }
+.sub { color: var(--dim); max-width: 70ch; margin: 12px 0 0; }
+.facts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.facts span { font: 500 13px var(--mono); border: 1px solid var(--line); border-radius: 4px; padding: 4px 8px; color: var(--dim); }
+.facts b { color: var(--fg); font-weight: 500; }
+
+.timeline { display: flex; height: 34px; border-radius: 4px; overflow: hidden; margin-top: 24px; border: 1px solid var(--line); }
+.timeline a { display: flex; align-items: center; justify-content: center; font: 600 14px var(--display); letter-spacing: 0.05em;
+  text-transform: uppercase; color: var(--fg); text-decoration: none; border-right: 1px solid var(--bg); background: var(--panel); min-width: 0; overflow: hidden; white-space: nowrap; }
+.timeline a:hover, .timeline a:focus-visible { background: var(--line); outline: none; }
+.timeline a:last-child { border-right: 0; }
+.ticks { display: flex; justify-content: space-between; font: 500 11px var(--mono); color: var(--dim); margin-top: 4px; }
+
+.strip { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
+.scene { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; display: flex; flex-direction: column; min-width: 0; }
+.frame { position: relative; aspect-ratio: 9 / 16; max-width: 100%; background: #0f1115; }
+.frame img, .frame svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.frame.pair { display: grid; grid-template-columns: 1fr 1fr; }
+.frame.pair > div { position: relative; }
+.when { position: absolute; top: 8px; left: 8px; font: 500 12px var(--mono); background: rgba(0,0,0,.6); padding: 2px 6px; border-radius: 3px; }
+.meta { padding: 14px 16px 16px; display: grid; gap: 8px; }
+.meta h3 { margin: 0; font: 800 24px/1 var(--display); text-transform: uppercase; }
+.meta dl { margin: 0; display: grid; grid-template-columns: 74px 1fr; gap: 4px 10px; font-size: 13.5px; }
+.meta dt { font: 500 11px/1.9 var(--mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--dim); }
+.meta dd { margin: 0; }
+.say { font: 600 17px/1.15 var(--display); text-transform: uppercase; letter-spacing: 0.02em; }
+.opt { font: 500 11px var(--mono); color: var(--rr); border: 1px solid var(--rr); border-radius: 3px; padding: 1px 5px; margin-left: 6px; vertical-align: 2px; }
+
+/* overlay text drawn on the frames */
+svg text { font-family: var(--display); font-weight: 800; }
+.cap { fill: var(--fg); font-size: 44px; }
+.capS { fill: var(--fg); font-size: 26px; font-weight: 600; }
+.num { font-size: 34px; }
+.lbl { fill: var(--dim); font-size: 20px; font-weight: 600; }
+
+.tablewrap { overflow-x: auto; }
+table { border-collapse: collapse; font-variant-numeric: tabular-nums; min-width: 560px; }
+th, td { padding: 8px 14px; text-align: right; border-bottom: 1px solid var(--line); }
+th:first-child, td:first-child { text-align: left; }
+th { font: 600 13px var(--display); letter-spacing: 0.06em; text-transform: uppercase; color: var(--dim); }
+td { font: 500 14px var(--mono); }
+.up { color: var(--good); }
+.qs { display: grid; gap: 12px; max-width: 80ch; padding: 0; margin: 0; list-style: none; counter-reset: q; }
+.qs li { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 12px 16px 12px 48px; position: relative; counter-increment: q; }
+.qs li::before { content: counter(q); position: absolute; left: 16px; top: 11px; font: 800 20px var(--display); color: var(--rr); }
+.qs b { font-weight: 600; }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+
+<div class="wrap">
+  <h1><span class="lr">0.875</span> / <span class="rr">0.975</span>: swap the rear bars, move 57 lb</h1>
+  <p class="sub">Vertical, about 42 seconds, no lateral g. The car accelerates at 0.8 g and the camera moves around it while the rear torsion bars glow. Every frame below is from the real model, rendered at the moment the scene describes. The blue bar is always the 0.875 and the orange bar is always the 0.975, so the colours follow the bar when it changes sides.</p>
+  <div class="facts">
+    <span>Long g <b>0.80</b></span><span>Lateral g <b>0</b></span><span>Weight <b>1,500 lb</b></span>
+    <span>Left / rear / cross <b>56 / 56 / 50%</b></span><span>CG <b>19 in</b></span><span>Engine <b>650 lb-ft</b></span>
+    <span>Gear <b>5.50</b></span><span>Torque tube mount <b>29.85 in</b></span><span>Wing <b>none</b></span>
+  </div>
+
+  <nav class="timeline" aria-label="Scenes by length">
+    <a href="#s1" style="flex:3">Hook</a><a href="#s2" style="flex:5">Bars</a><a href="#s3" style="flex:7">Throttle</a>
+    <a href="#s4" style="flex:7">Why</a><a href="#s5" style="flex:6">Setup A</a><a href="#s6" style="flex:7">Swap</a><a href="#s7" style="flex:7">Takeaway</a>
+  </nav>
+  <div class="ticks"><span>0:00</span><span>0:10</span><span>0:20</span><span>0:30</span><span>0:42</span></div>
+
+  <h2>Scenes</h2>
+  <div class="strip">
+
+    <article class="scene" id="s1">
+      <div class="frame">
+        <img src="frames/01_hook.jpg" alt="Rear three-quarter view of the sprint car on throttle, rear tire load discs under each tire">
+        <svg viewBox="0 0 540 960" aria-hidden="true">
+          <text class="cap" x="270" y="110" text-anchor="middle">SWAP TWO BARS</text>
+          <text class="cap" x="270" y="160" text-anchor="middle" fill="var(--good)" style="fill:var(--good)">+57 LB ON THE LR</text>
+          <text class="num" x="40" y="700" fill="var(--fg)" style="fill:var(--fg)">LR 666</text>
+          <text class="num" x="330" y="740" style="fill:var(--fg)">RR 441</text>
+        </svg>
+        <span class="when">0:00–0:03</span>
+      </div>
+      <div class="meta"><h3>Hook</h3><dl>
+        <dt>Shot</dt><dd>Low rear three-quarter, solid car, already on throttle at 0.8 g.</dd>
+        <dt>Motion</dt><dd>Fast push in. The rear is already lifted. The tire load discs pulse once.</dd>
+        <dt>Highlight</dt><dd>None yet, so the car reads as a car first.</dd>
+        <dt>Text</dt><dd class="say">Swap two bars. +57 lb on the LR.</dd>
+      </dl></div>
+    </article>
+
+    <article class="scene" id="s2">
+      <div class="frame">
+        <img src="frames/02_bars.jpg" alt="High rear view with the frame ghosted and the two rear torsion bars glowing">
+        <svg viewBox="0 0 540 960" aria-hidden="true">
+          <text class="cap" x="270" y="110" text-anchor="middle">SETUP A</text>
+          <line x1="215" y1="640" x2="150" y2="760" stroke="var(--lr)" stroke-width="3"/>
+          <text class="num" x="40" y="800" style="fill:var(--lr)">LR 0.875</text>
+          <text class="lbl" x="40" y="828">94 LB/IN AT THE WHEEL</text>
+          <line x1="300" y1="620" x2="380" y2="700" stroke="var(--rr)" stroke-width="3"/>
+          <text class="num" x="320" y="736" style="fill:var(--rr)">RR 0.975</text>
+          <text class="lbl" x="320" y="764">179 LB/IN</text>
+        </svg>
+        <span class="when">0:03–0:08</span>
+      </div>
+      <div class="meta"><h3>The bars</h3><dl>
+        <dt>Shot</dt><dd>Camera rises behind the car. The frame and tires fade to glass.</dd>
+        <dt>Motion</dt><dd>Car settles back to standing still so the bars can be seen. The bars light up one at a time, LR then RR.</dd>
+        <dt>Highlight</dt><dd>LR bar blue, RR bar orange, with a glow pulse as each label lands.</dd>
+        <dt>Text</dt><dd class="say">LR 0.875 · RR 0.975</dd>
+      </dl></div>
+    </article>
+
+    <article class="scene" id="s3">
+      <div class="frame pair">
+        <div><img src="frames/03_side_rest.jpg" alt="Side view of the rear, standing still"></div>
+        <div><img src="frames/04_side_gas.jpg" alt="Side view of the rear at 0.8 g, rear lifted"></div>
+        <svg viewBox="0 0 540 960" aria-hidden="true" style="position:absolute;inset:0">
+          <text class="capS" x="135" y="90" text-anchor="middle">STANDING</text>
+          <text class="capS" x="405" y="90" text-anchor="middle">0.8 G</text>
+          <line x1="370" y1="272" x2="504" y2="273" stroke="var(--rr)" stroke-width="5" stroke-linecap="round"/>
+          <line x1="504" y1="262" x2="504" y2="200" stroke="var(--good)" stroke-width="4"/>
+          <path d="M494 210 L504 192 L514 210 Z" style="fill:var(--good)"/>
+          <text class="capS" x="500" y="178" text-anchor="end" style="fill:var(--good)">739 LB</text>
+          <text class="cap" x="270" y="820" text-anchor="middle">REAR LIFTS 2.3 IN</text>
+        </svg>
+        <span class="when">0:08–0:15</span>
+      </div>
+      <div class="meta"><h3>Throttle</h3><dl>
+        <dt>Shot</dt><dd>Tight side view of the rear half. Before and after are shown side by side here; in the video it is one shot.</dd>
+        <dt>Motion</dt><dd>Throttle comes on. A drawn torque tube runs from the axle to the engine mount and pushes up at the mount. The rear rises 2.3 in, with a faint outline of the standing pose left behind.</dd>
+        <dt>Highlight</dt><dd>Torque tube orange, lift arrow green. The tube and engine are not in the CAD, so these are drawn on.</dd>
+        <dt>Text</dt><dd class="say">The torque tube lifts the rear 2.3 in.</dd>
+      </dl></div>
+    </article>
+
+    <article class="scene" id="s4">
+      <div class="frame">
+        <img src="frames/05_rear_A.jpg" alt="Straight rear view at 0.8 g, chassis rolled slightly">
+        <svg viewBox="0 0 540 960" aria-hidden="true">
+          <text class="cap" x="270" y="110" text-anchor="middle">BOTH BARS UNWIND</text>
+          <text class="capS" x="270" y="150" text-anchor="middle">THE STIFF ONE SHEDS MORE</text>
+          <text class="num" x="30" y="900" style="fill:var(--lr)">94 LB/IN</text>
+          <text class="num" x="510" y="900" text-anchor="end" style="fill:var(--rr)">179 LB/IN</text>
+          <text class="capS" x="270" y="250" text-anchor="middle" style="fill:var(--dim)">CHASSIS ROLLS 0.94°</text>
+        </svg>
+        <span class="when">0:15–0:22</span>
+      </div>
+      <div class="meta"><h3>Why</h3><dl>
+        <dt>Shot</dt><dd>Straight from behind, square to the axle.</dd>
+        <dt>Motion</dt><dd>Loop the lift from standing to 0.8 g twice. Each bar's glow dims as it unwinds; the RR fades faster. The chassis rolls 0.94°.</dd>
+        <dt>Highlight</dt><dd>Both bars, glow strength following each bar's load.</dd>
+        <dt>Text</dt><dd class="say">Both bars unwind. The stiff one sheds more.</dd>
+      </dl></div>
+    </article>
+
+    <article class="scene" id="s5">
+      <div class="frame">
+        <img src="frames/07_top_A.jpg" alt="Top view with tire load discs, setup A at 0.8 g">
+        <svg viewBox="0 0 540 960" aria-hidden="true">
+          <text class="cap" x="270" y="90" text-anchor="middle">SETUP A · 0.8 G</text>
+          <text class="lbl" x="270" y="122" text-anchor="middle">LOOKING DOWN AT THE CAR</text>
+          <text class="num" x="118" y="345" text-anchor="middle" style="fill:var(--fg)">176</text>
+          <text class="num" x="414" y="345" text-anchor="middle" style="fill:var(--fg)">217</text>
+          <text class="num" x="130" y="850" text-anchor="middle" style="fill:var(--fg)">666</text>
+          <text class="num" x="416" y="850" text-anchor="middle" style="fill:var(--fg)">441</text>
+          <text class="lbl" x="130" y="878" text-anchor="middle" style="fill:var(--lr)">LR 0.875</text>
+          <text class="lbl" x="416" y="878" text-anchor="middle" style="fill:var(--rr)">RR 0.975</text>
+        </svg>
+        <span class="when">0:22–0:28</span>
+      </div>
+      <div class="meta"><h3>Setup A</h3><dl>
+        <dt>Shot</dt><dd>Camera swings straight overhead, nose up, laid out like a setup sheet.</dd>
+        <dt>Motion</dt><dd>Load numbers count up from 0 as the discs grow.</dd>
+        <dt>Highlight</dt><dd>LR disc and number.</dd>
+        <dt>Text</dt><dd class="say">LR 666 lb · RR 441 lb</dd>
+      </dl></div>
+    </article>
+
+    <article class="scene" id="s6">
+      <div class="frame">
+        <img src="frames/08_top_B.jpg" alt="Top view with tire load discs, setup B at 0.8 g">
+        <svg viewBox="0 0 540 960" aria-hidden="true">
+          <text class="cap" x="270" y="90" text-anchor="middle">SWAP SIDES</text>
+          <text class="lbl" x="270" y="122" text-anchor="middle">SAME TWO BARS</text>
+          <text class="num" x="118" y="345" text-anchor="middle" style="fill:var(--fg)">232</text>
+          <text class="num" x="414" y="345" text-anchor="middle" style="fill:var(--fg)">161</text>
+          <text class="num" x="130" y="850" text-anchor="middle" style="fill:var(--fg)">609</text>
+          <text class="num" x="416" y="850" text-anchor="middle" style="fill:var(--fg)">499</text>
+          <text class="lbl" x="130" y="878" text-anchor="middle" style="fill:var(--rr)">LR 0.975</text>
+          <text class="lbl" x="416" y="878" text-anchor="middle" style="fill:var(--lr)">RR 0.875</text>
+        </svg>
+        <span class="when">0:28–0:35</span>
+      </div>
+      <div class="meta"><h3>Swap</h3><dl>
+        <dt>Shot</dt><dd>Same overhead. Cut briefly to the rear view while the bars change sides, then back.</dd>
+        <dt>Motion</dt><dd>The two glowing bars slide out and trade places, so the orange bar ends up on the left. The discs resize and the numbers tick to the new loads.</dd>
+        <dt>Highlight</dt><dd>Bars during the swap, then the LR and LF discs as they change.</dd>
+        <dt>Text</dt><dd class="say">Swap sides: LR 609 lb · RR 499 lb</dd>
+      </dl></div>
+    </article>
+
+    <article class="scene" id="s7">
+      <div class="frame pair">
+        <div><img src="frames/07_top_A.jpg" alt="Setup A overhead"></div>
+        <div><img src="frames/08_top_B.jpg" alt="Setup B overhead"></div>
+        <svg viewBox="0 0 540 960" aria-hidden="true" style="position:absolute;inset:0">
+          <rect x="0" y="40" width="540" height="150" fill="rgba(21,24,29,.85)"/>
+          <text class="cap" x="270" y="100" text-anchor="middle">STIFFER RR BAR</text>
+          <text class="cap" x="270" y="150" text-anchor="middle" style="fill:var(--good)">= MORE LR ON THROTTLE</text>
+          <text class="num" x="135" y="850" text-anchor="middle" style="fill:var(--fg)">666</text>
+          <text class="num" x="405" y="850" text-anchor="middle" style="fill:var(--fg)">609</text>
+          <rect x="0" y="880" width="540" height="60" fill="rgba(21,24,29,.85)"/>
+          <text class="capS" x="270" y="920" text-anchor="middle">AND THE LF GOES 56 LB LIGHTER</text>
+        </svg>
+        <span class="when">0:35–0:42</span>
+      </div>
+      <div class="meta"><h3>Takeaway</h3><dl>
+        <dt>Shot</dt><dd>Split screen: setup A on the left, setup B on the right, both overhead.</dd>
+        <dt>Motion</dt><dd>Both cars on throttle in sync. The LR numbers stay up while the rest dims. End on the brand mark.</dd>
+        <dt>Highlight</dt><dd>LR discs, then the LF disc for the last line.</dd>
+        <dt>Text</dt><dd class="say">Stiffer RR bar = more LR on throttle. And the LF goes 56 lb lighter.</dd>
+      </dl></div>
+    </article>
+  </div>
+
+  <h2>The numbers, 0.8 g on throttle</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th></th><th>Setup A<br>LR 0.875 / RR 0.975</th><th>Setup B<br>LR 0.975 / RR 0.875</th><th>A minus B</th></tr></thead>
+    <tbody>
+      <tr><td>LF load, lb</td><td>176</td><td>232</td><td>−56</td></tr>
+      <tr><td>RF load, lb</td><td>217</td><td>161</td><td class="up">+56</td></tr>
+      <tr><td>LR load (bite), lb</td><td>666</td><td>609</td><td class="up">+57</td></tr>
+      <tr><td>RR load, lb</td><td>441</td><td>499</td><td>−58</td></tr>
+      <tr><td>Rear wheel rate LR / RR, lb/in</td><td>94 / 179</td><td>145 / 116</td><td></td></tr>
+      <tr><td>Rear lift, in</td><td>2.30</td><td>2.28</td><td></td></tr>
+      <tr><td>Chassis roll, °</td><td>0.94</td><td>−0.19</td><td></td></tr>
+      <tr><td>Torque tube lift at mount, lb</td><td>737</td><td>740</td><td></td></tr>
+      <tr><td>Forward bite (rear grip left), lb</td><td>206</td><td>213</td><td>−7</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>For you to decide</h2>
+  <ol class="qs">
+    <li><b>The whole effect comes from the torque tube lift.</b> With engine torque set to 0, the rear squats 0.8 in instead of lifting, and the split moves only 21 lb the other way (LR 577 vs 598). That could be a strong extra beat ("take away the torque tube and it flips"), or it could muddy a 40 second video. Add it, or leave it out?</li>
+    <li><b>The lift numbers rest on 650 lb-ft and the 5.50 gear, which are both placeholders.</b> At 0.8 g the axle torque is capped by rear grip (the tires would spin), so the engine figure barely changes the result. The 29.85 in mount distance does matter. Are those close to the car you want to show?</li>
+    <li><b>Forward bite goes the other way by 7 lb.</b> Setup A puts 57 lb more on the LR, but the rears together have slightly less grip left because the load is less even. The video only says LR load. Is that the bite you want to talk about?</li>
+    <li><b>Both setups weigh the same on the scales</b> (375 / 285 / 465 / 375), because ride heights are held. "Same scales, different bite" would make a good hook, but it shows the car standing still, which you have kept out of the videos so far. Use it or not?</li>
+    <li><b>The 2.3 in lift is hard to see at full-car scale</b> (about 10 pixels in a side view). The plan is a tight rear shot with an outline of the standing pose. Should I exaggerate the motion, or keep it true to scale?</li>
+    <li><b>The brand mark.</b> Use the Short Track CAD mark on this one, or leave it off?</li>
+  </ol>
+</div>

@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0}</style><title>Sprint Car Setup Lab</title>
+<link rel="stylesheet" href="lib/fonts.css">
+<style>
+[hidden]{display:none!important}
+/* Layout: a 3D viewport with the setup sheet docked on the right, stacking under it on phones */
+:root{
+  --bg:#e9ecef; --panel:#f8f9fa; --ink:#1d2329; --muted:#5b6670; --line:#cfd5db;
+  --accent:#1864ab; --steel:#7d8b99; --link:#e8590c; --unsprung:#343a40;
+  --good:#2b8a3e; --warn:#c77700; --bad:#c92a2a;
+  --display:"Barlow Condensed","Arial Narrow",sans-serif; --body:"IBM Plex Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15191d;--panel:#1d2329;--ink:#e9ecef;--muted:#9aa5b0;--line:#323a42;--steel:#8d9cab;--unsprung:#495057;--accent:#4dabf7;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#15191d;--panel:#1d2329;--ink:#e9ecef;--muted:#9aa5b0;--line:#323a42;--steel:#8d9cab;--unsprung:#495057;--accent:#4dabf7;color-scheme:dark}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14px}
+.wrap{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:16px;padding-block:16px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));min-height:100%;box-sizing:border-box}
+@media (max-width:860px){.wrap{grid-template-columns:minmax(0,1fr)}}
+.wrap.dyn{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+@media (max-width:860px){.wrap.dyn{grid-template-columns:minmax(0,1fr)}}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+.cgrid figure{margin:0}
+.cgrid figcaption{font-size:11px;color:var(--muted);font-family:var(--mono);min-height:14px}
+.stage{position:sticky;top:16px;align-self:start;height:calc(100vh - 32px);max-height:880px;min-height:520px;border:1px solid var(--line);background:var(--panel);overflow:hidden}
+@media (max-width:860px){.stage{position:relative;top:0;height:60vh;min-height:380px}}
+canvas{display:block;width:100%;height:100%}
+h1{font-family:var(--display);font-weight:600;font-size:clamp(18px,2.6vw,28px);letter-spacing:.02em;margin:0;text-transform:uppercase;line-height:1}
+.hud{position:absolute;left:12px;top:12px;display:flex;flex-direction:column;gap:6px;pointer-events:none;max-width:calc(100% - 300px)}
+.sub{color:var(--muted);font-size:12px}
+.stats{position:absolute;left:12px;bottom:12px;display:flex;gap:8px;flex-wrap:wrap;max-width:calc(100% - 24px)}
+.stat{background:var(--panel);border:1px solid var(--line);padding:6px 10px;min-width:78px}
+.stat p{margin:0;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.stat b{font-family:var(--mono);font-weight:500;font-size:18px;font-variant-numeric:tabular-nums}
+.views{position:absolute;right:12px;top:12px;display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;max-width:calc(60% - 16px)}
+button{font:inherit;font-size:12px;background:var(--panel);color:var(--ink);border:1px solid var(--line);padding:5px 10px;cursor:pointer}
+button:hover,button:focus-visible{border-color:var(--accent);outline:none}
+.views button[aria-pressed="true"]{background:var(--accent);color:#fff;border-color:var(--accent)}
+.tag{position:absolute;transform:translate(-50%,-100%);font-family:var(--mono);font-size:12px;background:var(--panel);border:1px solid var(--line);padding:2px 6px;pointer-events:none;white-space:nowrap;font-variant-numeric:tabular-nums}
+.tag i{font-style:normal;color:var(--muted);margin-right:4px}
+aside{background:var(--panel);border:1px solid var(--line);padding:14px 16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+fieldset{border:0;border-top:1px solid var(--line);margin:0;padding:10px 0 0;display:flex;flex-direction:column;gap:6px}
+legend{font-family:var(--display);font-weight:600;font-size:16px;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);padding-right:8px}
+.row{display:grid;grid-template-columns:128px minmax(0,1fr) 64px;align-items:center;gap:8px}
+.row label{color:var(--muted);font-size:13px}
+.row output{font-family:var(--mono);text-align:right;font-variant-numeric:tabular-nums;font-size:13px}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=text],input[type=number],select{font:inherit;font-size:13px;background:var(--panel);color:var(--ink);border:1px solid var(--line);padding:3px 6px;min-width:0;width:100%}
+.chk{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--muted)}
+.loading{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font-family:var(--display);font-size:20px;letter-spacing:.06em;text-transform:uppercase}
+.inputs summary{font-family:var(--display);font-weight:600;font-size:16px;text-transform:uppercase;letter-spacing:.06em;color:var(--accent)}
+.inputs{display:flex;flex-direction:column;gap:6px;color:var(--ink);font-size:13px}
+.inputs[open]>summary{margin-bottom:6px}
+.fixed{margin:4px 0 0;font-size:12px;color:var(--muted)}
+details{font-size:12px;color:var(--muted);line-height:1.5}
+summary{cursor:pointer;color:var(--ink)}
+.legend{display:flex;gap:10px;flex-wrap:wrap;font-size:11px;color:var(--muted)}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;margin-right:4px;vertical-align:-1px;background:var(--c)}
+.warn{background:var(--bad);color:#fff;font-size:12px;padding:4px 8px;max-width:340px;line-height:1.4}
+.help{position:absolute;right:12px;top:52px;width:min(360px,calc(100% - 24px));background:var(--panel);border:1px solid var(--line);padding:14px 16px;font-size:13px;line-height:1.5;z-index:5;max-height:calc(100% - 80px);overflow:auto}
+.help h2{font-family:var(--display);font-weight:600;font-size:18px;text-transform:uppercase;letter-spacing:.05em;margin:0 0 6px;color:var(--accent)}
+.help ul{margin:0 0 8px;padding-left:18px}.help li{margin:2px 0}
+.help p{margin:0 0 8px}
+abbr[title]{text-decoration:underline dotted;cursor:help}
+.tabs{display:grid;grid-template-columns:1fr 1fr 1fr;border:1px solid var(--line)}
+.tabs button{border:0;padding:8px;font-family:var(--display);font-weight:600;font-size:16px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:transparent}
+.tabs button[aria-selected="true"]{background:var(--accent);color:#fff}
+.pane{display:flex;flex-direction:column;gap:14px}
+.seg{display:flex;gap:4px}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+table.k{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+table.k th{font-weight:500;color:var(--muted);text-align:right;font-size:11px;text-transform:uppercase;letter-spacing:.06em;padding:2px 0}
+table.k th:first-child,table.k td:first-child{text-align:left;color:var(--muted)}
+table.k td{font-family:var(--mono);text-align:right;padding:3px 0;border-top:1px solid var(--line)}
+table.k td:first-child{font-family:var(--body)}
+td.chg{color:var(--link)}
+.chart{width:100%;height:auto;display:block}
+.chart text{font-family:var(--mono);font-size:10px;fill:var(--muted)}
+.chart .ax{stroke:var(--line)}
+.note{font-size:12px;color:var(--muted);margin:0;line-height:1.5}
+.btnrow{display:flex;gap:6px;flex-wrap:wrap}
+/* collapsible sections: click a heading to fold it */
+aside fieldset>legend{cursor:pointer;user-select:none}
+aside fieldset>legend::before{content:"\25be ";font-size:12px}
+aside fieldset.shut>legend::before{content:"\25b8 "}
+aside fieldset.shut>*:not(legend){display:none!important}
+@media (max-width:860px){.stats{gap:4px}.stat{min-width:0;padding:4px 7px}.stat p{font-size:10px}.stat b{font-size:14px}}
+@media (max-width:600px){h1{font-size:20px}.hud .legend{display:none}.hud{max-width:calc(50% - 16px)}
+  .stats{flex-wrap:nowrap;overflow-x:auto;right:12px}.stat{flex:none}}
+</style>
+
+<div class="wrap">
+  <div class="stage" id="stage">
+    <div class="loading" id="loading">Loading car&hellip;</div>
+    <div class="hud">
+      <h1>Sprint Car Setup Lab</h1>
+      <div class="sub" id="sub">radius rods &middot; front track bar &middot; Jacobs ladder</div>
+      <div class="legend"><span style="--c:var(--steel)">Sprung</span><span style="--c:var(--link)">Links</span><span style="--c:var(--unsprung)">Unsprung</span><span style="--c:var(--accent)" id="leg-axis">Roll axis</span></div>
+      <div class="warn" id="warn" hidden></div>
+    </div>
+    <div class="views">
+      <button id="v-front">Front</button><button id="v-34">3/4</button><button id="v-top">Top</button><button id="v-side">Side</button><button id="v-rear">Rear</button><button id="v-exag" aria-pressed="false" title="Shows roll, pitch and heave 5x bigger so you can see them. Numbers stay true.">Motion &times;5</button><button id="v-help" aria-expanded="false">How to use</button>
+    </div>
+    <div class="help" id="help" hidden>
+      <h2>How to use</h2>
+      <ul>
+        <li>Left-drag to rotate, right-drag to pan, scroll to zoom. The view buttons jump to set angles.</li>
+        <li><b>Setup</b>: change weight, torsion bars, scales and lateral and long g. The car rolls, pitches and heaves, and the disc under each tire grows with its load.</li>
+        <li><b>Drive the corner</b> loops the car through braking, turn-in, mid-corner and exit so you can watch the loads change. <b>Motion &times;5</b> makes small body movements easier to see.</li>
+        <li><b>Kinematics &rarr; Front</b>: move the three radius rods, the track bar and the steering, then use Heave, Roll or Sweep. Watch camber, bump steer and the roll center.</li>
+        <li><b>Kinematics &rarr; Rear</b>: index the birdcages, move the top radius rods and the Jacobs ladder holes. Watch the rear roll center, rear steer, anti-squat and the bar arm motion ratio.</li>
+        <li><b>Dynamics</b>: set the body&rsquo;s heave, roll and pitch and watch the car follow. The charts show toe, camber, caster, roll centres, rear steer, wheelbase and birdcage clocking through whichever one you plot against.</li>
+        <li>Dashed lines on the charts are the car as modeled. Orange numbers show which parts changed length.</li>
+        <li><b>Saved setups</b>: save, load and compare side by side; export one to a file to share it.</li>
+        <li>Click a section heading to fold it away. The camera remembers your angle on each tab.</li>
+        <li>Hover any underlined term for a short definition.</li>
+      </ul>
+      <button id="help-close">Got it</button>
+    </div>
+    <div class="stats" id="stats-setup">
+      <div class="stat"><p>Body roll</p><b id="roll">&mdash;</b></div>
+      <div class="stat"><p><abbr title="Lateral load transfer distribution: the share of total load transfer carried by the front axle.">Front LLTD</abbr></p><b id="lltd">&mdash;</b></div>
+      <div class="stat"><p><abbr title="Front roll center height: where the front track bar crosses the car centerline, at this body roll.">Front RC</abbr></p><b id="rc-s">&mdash;</b></div>
+      <div class="stat"><p><abbr title="Rear roll center height: where the two Jacobs ladder straps cross, at this body roll.">Rear RC</abbr></p><b id="rrc-s">&mdash;</b></div>
+      <div class="stat"><p><abbr title="Vertical push of the front track bar on the chassis: its lateral force times the bar's rise over run, plus the radius rods' share under braking. + pulls the front down, - pushes it up.">Front jacking</abbr></p><b id="fjk-s">&mdash;</b></div>
+      <div class="stat"><p><abbr title="Body height change at the front and rear axles in this corner, from the ride heights. + = up.">Ride F / R</abbr></p><b id="ride-s">&mdash;</b></div>
+      <div class="stat"><p><abbr title="+ = nose up.">Pitch</abbr></p><b id="pitch-s">&mdash;</b></div>
+      <div class="stat"><p><abbr title="Where the rear axle aims against the chassis centreline at this body roll. + = aims right (LR ahead of RR), which loosens the car; - = RR ahead, tighter.">Rear steer</abbr></p><b id="rst-s">&mdash;</b></div>
+      <div class="stat"><p><abbr title="LF toe change from the drag link as the axle moves to this attitude. The front axle steers itself because the drag link is anchored to the chassis.">Front roll steer</abbr></p><b id="frs-s">&mdash;</b></div>
+      <div class="stat"><p><abbr title="Front grip used minus rear grip used, from a simple load-sensitive tire. + = front runs out first (tight), - = rear runs out first (loose). Ignores camber, stagger and rear steer; compare setups, don't read it as a lap time.">Balance</abbr></p><b id="bal-s">&mdash;</b></div>
+      <div class="stat"><p><abbr title="Stagger set minus the stagger a locked rear needs for this corner radius. + = more than needed, which loosens the car.">Stagger vs corner</abbr></p><b id="stg-s">&mdash;</b></div>
+    </div>
+    <div class="stats" id="stats-kf" hidden>
+      <div class="stat"><p>LF camber</p><b id="k-lfc">&mdash;</b></div>
+      <div class="stat"><p>RF camber</p><b id="k-rfc">&mdash;</b></div>
+      <div class="stat"><p><abbr title="Front roll center at the heave and roll set on this tab: where the track bar crosses the centerline.">Front RC</abbr></p><b id="k-rch">&mdash;</b></div>
+      <div class="stat"><p><abbr title="How far the front axle has shifted sideways under the body, from the track bar swinging. + = left.">Axle shift</abbr></p><b id="k-shift">&mdash;</b></div>
+      <div class="stat"><p><abbr title="LF toe change per inch of axle travel around this position. The track bar scrubs the axle sideways and the chassis-mounted drag link turns that into steer.">LF bump steer</abbr></p><b id="k-bs">&mdash;</b></div>
+    </div>
+    <div class="stats" id="stats-kr" hidden>
+      <div class="stat"><p>Rear RC</p><b id="q-rc">&mdash;</b></div>
+      <div class="stat"><p><abbr title="Where the two straps cross, measured across the car. + = left of the centerline.">RC lateral</abbr></p><b id="q-rcy">&mdash;</b></div>
+      <div class="stat"><p>Rear steer</p><b id="q-rst">&mdash;</b></div>
+      <div class="stat"><p><abbr title="How much of the throttle squat the rear links resist, LR / RR, at the Setup tab CG height. Indexing the birdcages moves this.">Anti-squat</abbr></p><b id="q-asq">&mdash;</b></div>
+      <div class="stat"><p>Birdcages</p><b id="q-cage">&mdash;</b></div>
+    </div>
+  </div>
+
+  <aside>
+    <div class="btnrow"><button id="reset-all">Reset everything</button><button id="hp-load">Load hardpoints&hellip;</button><button id="hp-save">Download hardpoints</button><input type="file" id="hp-file" accept=".json,application/json" hidden></div>
+    <p class="note" id="hp-note" hidden></p>
+    <div class="tabs" role="tablist">
+      <button role="tab" id="t-setup" aria-selected="true">Setup</button>
+      <button role="tab" id="t-kin" aria-selected="false">Kinematics</button>
+      <button role="tab" id="t-dyn" aria-selected="false">Dynamics</button>
+    </div>
+
+    <div class="pane" id="p-setup">
+    <div class="row"><label for="winged"><abbr title="Winged or non-wing car. Off hides both wings and takes their downforce out.">Wing</abbr></label><input type="checkbox" id="winged" checked><span></span></div>
+    <div class="btnrow"><button id="reset-setup">Reset setup to defaults</button></div>
+    <fieldset><legend>Saved setups</legend>
+      <div class="row"><label for="sv-name">Name</label><input type="text" id="sv-name" placeholder="e.g. Heavy track, 8 in stagger"><button id="sv-save">Save</button></div>
+      <div class="row"><label for="sv-list">Saved</label><select id="sv-list"></select><button id="sv-load">Load</button></div>
+      <div class="row"><label for="sv-cmp">Compare to</label><select id="sv-cmp"></select><span></span></div>
+      <div class="btnrow"><button id="sv-del">Delete selected</button><button id="sv-exp">Export selected</button><button id="sv-imp">Import file&hellip;</button><input type="file" id="sv-file" accept=".json,application/json" hidden></div>
+      <table class="k" id="cmp-tab" hidden><thead><tr><th></th><th>Now</th><th id="cmp-name">Saved</th><th>&Delta;</th></tr></thead><tbody id="cmp-body"></tbody></table>
+    </fieldset>
+    <details class="inputs" open><summary>Car inputs</summary>
+      <div class="row"><label for="wt">Weight, lb</label><select id="wt"></select><span></span></div>
+      <div class="row"><label for="blen">Bar length, in</label><input type="range" id="blen" min="24" max="36" step="0.5" value="30"><output id="blen-o"></output></div>
+      <div class="row"><label for="unf">Front unsprung, lb</label><input type="range" id="unf" min="80" max="260" step="5" value="150"><output id="unf-o"></output></div>
+      <div class="row"><label for="unr">Rear unsprung, lb</label><input type="range" id="unr" min="150" max="420" step="5" value="260"><output id="unr-o"></output></div>
+      <div class="row"><label for="bb">Front brake, %</label><input type="range" id="bb" min="0" max="60" step="1" value="25"><output id="bb-o"></output></div>
+      <p class="fixed" id="mr-note" hidden></p>
+    </details>
+    <fieldset><legend>Track</legend>
+      <div class="row"><label for="g"><abbr title="Cornering g: speed squared over corner radius, the g the car turns at. On banking the tires feel less of it sideways and carry more load down; the line under Banking shows both.">Lateral g</abbr></label><input type="range" id="g" min="0" max="1.6" step="0.01" value="1.15"><output id="g-o"></output></div>
+      <div class="row"><label for="gx"><abbr title="- = braking, + = throttle.">Long g</abbr></label><input type="range" id="gx" min="-1.2" max="1" step="0.01" value="0"><output id="gx-o"></output></div>
+      <div class="row"><label for="bank"><abbr title="Track banking at this point in the corner, rising to the outside (right).">Banking, °</abbr></label><input type="range" id="bank" min="0" max="20" step="0.5" value="0"><output id="bank-o"></output></div>
+      <p class="note" id="bank-note"></p>
+      <div class="btnrow"><button id="drive">&#9654; Drive the corner</button><span class="note" id="drive-phase"></span></div>
+      <div class="row"><label for="rad">Corner radius, ft</label><input type="range" id="rad" min="40" max="300" step="5" value="90"><output id="rad-o"></output></div>
+      <div class="row"><label for="stg"><abbr title="Rear tire circumference difference, RR minus LR. This sizes the LR tire and leaves the RR alone, so the rear axle has to tilt to keep both on the ground - which moves the ride height, the roll centre and the corner weights.">Stagger</abbr>, in</label><input type="range" id="stg" min="0" max="16" step="0.25" value="6.75"><output id="stg-o"></output></div>
+    </fieldset>
+    <fieldset id="wing-rows"><legend>Wings</legend>
+      <div class="row"><label for="wing"><abbr title="Downforce from the top wing at this moment, lb. Winged sprint cars carry a lot of it and it changes with speed, so set it for the part of the corner you are looking at.">Top wing, lb</abbr></label><input type="range" id="wing" min="0" max="1400" step="25" value="0"><output id="wing-o"></output></div>
+      <div class="row"><label for="wingp"><abbr title="Where the top wing sits along the frame, in. 0 = the wing where the CAD has it; the load acts at the centre of its main panel. + = toward the front.">Top wing position, in</abbr></label><input type="range" id="wingp" min="-12" max="12" step="0.25" value="0"><output id="wingp-o"></output></div>
+      <div class="row"><label for="wingh"><abbr title="Raises (+) or lowers (-) the top wing from where the CAD has it, in. Moves the wing and its load point; downforce is still the lb you set.">Top wing height, in</abbr></label><input type="range" id="wingh" min="-6" max="6" step="0.25" value="0"><output id="wingh-o"></output></div>
+      <div class="row"><label for="fwing"><abbr title="Downforce from the front wing at this moment, lb.">Front wing, lb</abbr></label><input type="range" id="fwing" min="0" max="400" step="25" value="0"><output id="fwing-o"></output></div>
+      <div class="row"><label for="fwingp"><abbr title="Where the front wing sits along the car, in. 0 = the wing where the CAD has it; the load acts at the centre of its main panel. + = toward the front.">Front wing position, in</abbr></label><input type="range" id="fwingp" min="-12" max="24" step="0.25" value="0"><output id="fwingp-o"></output></div>
+      <div class="row"><label for="fwingh"><abbr title="Raises (+) or lowers (-) the front wing from where the CAD has it, in. Moves the wing and its load point; downforce is still the lb you set.">Front wing height, in</abbr></label><input type="range" id="fwingh" min="-6" max="6" step="0.25" value="0"><output id="fwingh-o"></output></div>
+    </fieldset>
+    <fieldset><legend>Forces</legend>
+      <div class="row"><label for="gear"><abbr title="Rear end ratio, quick change and ring and pinion together. Sets the driveshaft torque from the drive force. 5.50 is a placeholder: put in what the car runs.">Rear gear ratio</abbr></label><input type="number" id="gear" min="2" max="9" step="0.01" value="5.5"><span></span></div>
+      <div class="row"><label for="etq"><abbr title="Engine torque on throttle, lb-ft. With the gear it sets the driveshaft torque and the torque tube lift. 650 is a placeholder: put in roughly what your engine makes.">Engine torque, lb-ft</abbr></label><input type="number" id="etq" min="0" max="1200" step="10" value="650"><span></span></div>
+      <div class="row"><label for="ttm"><abbr title="Move the torque ball (where the tube meets the engine plate) forward (+) or back (-) from where the CAD has it, in. The tube telescopes to follow. Further forward = longer lever, less lift.">Torque ball fore/aft, in</abbr></label><input type="number" id="ttm" min="-12" max="12" step="0.25" value="0"><span></span></div>
+      <table class="k" id="force-tab"><tbody></tbody></table>
+      <p class="note" id="force-note" hidden></p>
+    </fieldset>
+    <fieldset><legend>Torsion bars, in dia</legend>
+      <div class="row"><label for="dlf">LF</label><input type="range" id="dlf" min="0.75" max="1.15" step="0.005" value="0.95"><output id="dlf-o"></output></div>
+      <div class="row"><label for="drf">RF</label><input type="range" id="drf" min="0.75" max="1.15" step="0.005" value="0.975"><output id="drf-o"></output></div>
+      <div class="row"><label for="dlr">LR</label><input type="range" id="dlr" min="0.75" max="1.15" step="0.005" value="0.90"><output id="dlr-o"></output></div>
+      <div class="row"><label for="drr">RR</label><input type="range" id="drr" min="0.75" max="1.15" step="0.005" value="0.925"><output id="drr-o"></output></div>
+      <table class="k" id="rate-tab"><thead><tr><th></th><th>LF</th><th>RF</th><th>LR</th><th>RR</th></tr></thead><tbody></tbody></table>
+    </fieldset>
+    <fieldset><legend>Ride height</legend>
+      <div class="row"><label for="hlf">LF ride ht, in</label><input type="number" id="hlf" min="2" max="12" step="0.03125" value="7"><span></span></div>
+      <div class="row"><label for="hrf">RF ride ht, in</label><input type="number" id="hrf" min="2" max="12" step="0.03125" value="7.25"><span></span></div>
+      <div class="row"><label for="hrr">RR ride ht, in</label><input type="number" id="hrr" min="2" max="12" step="0.03125" value="7.5"><span></span></div>
+      <div class="row"><label><abbr title="The frame is one rigid piece, so LR isn't set: it follows LF and RR 1 for 1 and goes opposite to RF.">LR ride ht</abbr>, in</label><span class="note">floats</span><output id="hlr-o"></output></div>
+      <div class="row"><label for="tpi"><abbr title="Threads per inch on the bar stop bolt. One round moves the bar arm 1 &divide; TPI inches.">Stop bolt, TPI</abbr></label><input type="number" id="tpi" min="1" step="any" value="8"><span></span></div>
+      <div class="row"><label for="rnlf">LF rounds</label><input type="number" id="rnlf" step="any" value="0"><output id="rnlf-o"></output></div>
+      <div class="row"><label for="rnrf">RF rounds</label><input type="number" id="rnrf" step="any" value="0"><output id="rnrf-o"></output></div>
+      <div class="row"><label for="rnlr">LR rounds</label><input type="number" id="rnlr" step="any" value="0"><output id="rnlr-o"></output></div>
+      <div class="row"><label for="rnrr">RR rounds</label><input type="number" id="rnrr" step="any" value="0"><output id="rnrr-o"></output></div>
+      <table class="k"><thead><tr><th></th><th>LF</th><th>RF</th><th>LR</th><th>RR</th></tr></thead><tbody id="rh-now"></tbody></table>
+      <p class="note" id="pre-note" hidden></p>
+    </fieldset>
+    <fieldset><legend>Geometry</legend>
+      <div class="row"><label for="cg">CG height, in</label><input type="range" id="cg" min="14" max="26" step="0.25" value="19"><output id="cg-o"></output></div>
+    </fieldset>
+    <fieldset><legend id="scale-leg">Scales</legend>
+      <div class="row"><label for="ls">Left</label><input type="range" id="ls" min="50" max="62" step="0.1" value="56"><output id="ls-o"></output></div>
+      <div class="row"><label for="rp">Rear</label><input type="range" id="rp" min="48" max="62" step="0.1" value="56"><output id="rp-o"></output></div>
+      <div class="row"><label for="cr">Cross</label><input type="range" id="cr" min="42" max="60" step="0.1" value="50"><output id="cr-o"></output></div>
+      <p class="note" id="wdg-note" hidden></p>
+    </fieldset>
+    <details><summary>Assumptions to check</summary>
+      <p id="asm-geo"></p>
+      <p><b>Taken from your CAD, not assumed.</b> Every pivot is the center of a rod-end ball fitted to the exported part, so the hardpoints are exact rather than eyeballed. The kingpin axes come from the spindles' kingpin bores: caster is 19.6&deg; on the LF and 23.1&deg; on the RF, KPI 5.4 and 2.3&deg;, and camber as drawn is &minus;2.68&deg; LF and +1.99&deg; RF with the steering turned about 1.9&deg; to the right. Front tires 13.03 in radius, LR 15.06, RR 16.14 (6.7 in of stagger).</p>
+      <p><b>Three front radius rods, which is how a sprint car is built.</b> The left front runs a lower rod only: that rod holds the axle fore and aft, and the right upper rod is what controls the axle's tilt. With the track bar that is four links on the beam axle, exactly the two degrees of freedom it needs, and it is why the two sides give different anti-dive.</p>
+      <p><b>The front torsion arm's link to the axle is not in the export.</b> The arm reaches from the bar to a point 2 in behind the axle and stops; whatever joins it to the axle is missing. The model treats the arm tip as riding with the axle at that point, which sets the motion ratio (about 0.99 both sides). A real link would change it a little.</p>
+      <p><b>The Jacobs ladder's straps run to a triangle, not to the axle.</b> The triangle is pinned to the right-rear hub, and that pin is the whole trick: it gives the ladder a joint of its own, so the axle can heave while both straps hold their length &mdash; the triangle just swings on the pin, about 13&deg; at full travel. So the triangle's swing is solved as an unknown here and the two straps go in as real length constraints. Where the strap lines cross is the rear roll center. As drawn the ladder holds the axle within 0.03 in of centered over &plusmn;3 in of travel, which is the reason to run one instead of a track bar.</p>
+      <p><b>Rear jacking.</b> The ladder triangle swings on its pin, so the two strap forces and the pin force must all pass through where the straps cross. The push therefore runs along the line from that crossing to the pin, and its rise over run sets the rear jacking, the same way the track bar's angle sets the front.</p>
+      <p><b>Birdcage clocking</b> is the angle of the line from the torsion arm mount up to the radius rod mount, off vertical in side view. The cage is one piece and the torsion arm is a fixed length, splined to its bar and free only to slide along it, so the cage turns to wherever the top rod puts it: clocking is set by turning the rod end. The clocking slider solves the rod length for you and the two always agree. Clocking moves anti-squat, rear steer and the bar arm motion ratio, so the effective bar rate too.</p>
+      <p><b>Stagger sizes the LR tire.</b> The slider is the circumference difference, RR minus LR; the RR is left at what the CAD drew and the LR is sized off it, which is how you change it on the car. Everything follows from there: a staggered axle cannot sit flat on the ground level, so the rear has to tilt, which moves the settled ride height, the rear roll centre and the corner weights. The tire in the 3D changes diameter with it. <b>Stagger vs corner</b> still compares what you have set against what a locked rear needs for the corner radius.</p>
+      <p><b>Rates.</b> Torsion bar rate at the arm = GJ/L &divide; arm&sup2;, J = &pi;d&#8308;/32, G = 11.5 million psi. Wheel rate = that times the motion ratio squared, with the motion ratio measured off the linkage. Roll stiffness = (k<sub>L</sub>+k<sub>R</sub>)&middot;(track/2)&sup2; per axle; there are no sway bars on this car, the torsion bars do all of it. Load transfer per axle = sprung W&middot;A<sub>y</sub>&middot;h<sub>rc</sub>/t + K&middot;&phi;/t + unsprung W&middot;A<sub>y</sub>&middot;r<sub>tire</sub>/t. Roll, both roll centers and the front jacking are solved together, because jacking raises the body, which moves them again.</p>
+      <p><b>Not modeled.</b> Shocks (every moment is a steady state, so damping and the timing of the weight transfer do not show). Bump rubbers. Tire growth. Birdcage and rod-end compliance. The wing is a load you set, not an aero model. Balance uses a tire whose friction falls with load (&mu; = 1.5 &minus; 0.0004&middot;F<sub>z</sub>) and ignores camber, stagger and rear steer. Stagger needed = rear tire circumference &times; rear track &divide; corner radius, for a locked rear.</p>
+    </details>
+    </div>
+
+
+    <div class="pane" id="p-dyn" hidden>
+    <fieldset><legend>Body attitude</legend>
+      <div class="row"><label for="d-heave"><abbr title="Body up (+) or down from ride height, at mid-wheelbase.">Heave, in</abbr></label><input type="range" id="d-heave" min="-3" max="3" step="0.05" value="0"><output id="d-heave-o"></output></div>
+      <div class="row"><label for="d-roll"><abbr title="+ = left side up, the way the car rolls in a left turn.">Roll, &deg;</abbr></label><input type="range" id="d-roll" min="-4" max="4" step="0.05" value="0"><output id="d-roll-o"></output></div>
+      <div class="row"><label for="d-pitch"><abbr title="+ = nose down, about mid-wheelbase.">Pitch, &deg;</abbr></label><input type="range" id="d-pitch" min="-3" max="3" step="0.05" value="0"><output id="d-pitch-o"></output></div>
+      <div class="row"><label for="d-x">Plot against</label><select id="d-x"><option value="heave">Heave</option><option value="roll" selected>Roll</option><option value="pitch">Pitch</option></select><button id="d-zero">Zero</button></div>
+    </fieldset>
+    <fieldset><legend>Kinematics vs <span id="d-xlab">roll</span></legend>
+      <div class="cgrid" id="d-charts"></div>
+    </fieldset>
+    </div>
+    <div class="pane" id="p-kin" hidden>
+      <div class="seg" role="group" aria-label="End to adjust">
+        <button id="c-front" aria-pressed="true">Front</button><button id="c-rear" aria-pressed="false">Rear</button>
+        <button id="k-reset" style="margin-left:auto">Reset</button>
+      </div>
+
+      <div class="pane" id="k-front">
+      <fieldset><legend>Steering</legend>
+        <div class="row"><label for="k-steer">Steer at the LF, &deg;</label><input type="range" id="k-steer" min="-30" max="30" step="0.5" value="0"><output id="k-steer-o"></output></div>
+        <div class="row"><label for="k-drag"><abbr title="Raise or lower the drag link's outer end on the LF steering arm. This is the front bump steer adjustment.">Drag link outer</abbr></label><input type="range" id="k-drag" min="-2" max="2" step="0.0625" value="0"><output id="k-drag-o"></output></div>
+        <div class="row"><label for="k-tieL">Tie rod, LF end</label><input type="range" id="k-tieL" min="-2" max="2" step="0.0625" value="0"><output id="k-tieL-o"></output></div>
+        <div class="row"><label for="k-tieR">Tie rod, RF end</label><input type="range" id="k-tieR" min="-2" max="2" step="0.0625" value="0"><output id="k-tieR-o"></output></div>
+        <div class="row"><label for="k-dragl"><abbr title="The app sets the drag link length so the fronts point straight at ride height, and keeps them there when the setup changes. This is a trim from centred: it moves both wheels together, not toe.">Drag link length</abbr></label><input type="range" id="k-dragl" min="-2" max="2" step="0.03125" value="0"><output id="k-dragl-o"></output></div>
+        <div class="row"><label for="k-phole"><abbr title="Which hole the drag link picks up on the pitman arm, measured along the arm from the steering box. + = further out: the arm is longer so the steering quickens, and it moves the bump steer a long way - on this car +2 in takes the LF from -0.32 to -1.32 deg per inch.">Pitman arm hole</abbr></label><input type="range" id="k-phole" min="-3" max="3" step="0.0625" value="0"><output id="k-phole-o"></output></div>
+        <div class="row"><label for="k-tiel"><abbr title="Lengthen or shorten the crossover bar behind the axle. The drag link fixes where the LF points and this sets the RF against it, so this is the toe adjustment.">Crossover length</abbr></label><input type="range" id="k-tiel" min="-2" max="2" step="0.03125" value="0"><output id="k-tiel-o"></output></div>
+      </fieldset>
+      <fieldset><legend>Spindles</legend>
+        <p class="note" id="spindle-note" hidden></p>
+        <div class="row"><label for="k-cas-l">LF caster, &deg;</label><input type="range" id="k-cas-l" min="-8" max="8" step="0.25" value="0"><output id="k-cas-l-o"></output></div>
+        <div class="row"><label for="k-cas-r">RF caster, &deg;</label><input type="range" id="k-cas-r" min="-8" max="8" step="0.25" value="0"><output id="k-cas-r-o"></output></div>
+        <div class="row"><label for="k-cam-l">LF camber, &deg;</label><input type="range" id="k-cam-l" min="-5" max="5" step="0.25" value="0"><output id="k-cam-l-o"></output></div>
+        <div class="row"><label for="k-cam-r">RF camber, &deg;</label><input type="range" id="k-cam-r" min="-5" max="5" step="0.25" value="0"><output id="k-cam-r-o"></output></div>
+      </fieldset>
+      <fieldset><legend>Front radius rods</legend>
+        <div class="row"><label for="k-ru-c">RF upper, frame</label><input type="range" id="k-ru-c" min="-2" max="2" step="0.0625" value="0"><output id="k-ru-c-o"></output></div>
+        <div class="row"><label for="k-ru-a">RF upper, axle</label><input type="range" id="k-ru-a" min="-2" max="2" step="0.0625" value="0"><output id="k-ru-a-o"></output></div>
+        <div class="row"><label for="k-ru-x"><abbr title="Move the frame mount forward (+) or back (-). The rod lengthens or shortens with it, so the axle stays put.">RF upper, frame fore/aft</abbr></label><input type="range" id="k-ru-x" min="-12" max="12" step="0.125" value="0"><output id="k-ru-x-o"></output></div>
+        <div class="row"><label for="k-rl-c">RF lower, frame</label><input type="range" id="k-rl-c" min="-2" max="2" step="0.0625" value="0"><output id="k-rl-c-o"></output></div>
+        <div class="row"><label for="k-rl-a">RF lower, axle</label><input type="range" id="k-rl-a" min="-2" max="2" step="0.0625" value="0"><output id="k-rl-a-o"></output></div>
+        <div class="row"><label for="k-rl-x"><abbr title="Move the frame mount forward (+) or back (-). The rod lengthens or shortens with it, so the axle stays put.">RF lower, frame fore/aft</abbr></label><input type="range" id="k-rl-x" min="-12" max="12" step="0.125" value="0"><output id="k-rl-x-o"></output></div>
+        <div class="row"><label for="k-ll-c">LF lower, frame</label><input type="range" id="k-ll-c" min="-2" max="2" step="0.0625" value="0"><output id="k-ll-c-o"></output></div>
+        <div class="row"><label for="k-ll-a">LF lower, axle</label><input type="range" id="k-ll-a" min="-2" max="2" step="0.0625" value="0"><output id="k-ll-a-o"></output></div>
+        <div class="row"><label for="k-ll-x"><abbr title="Move the frame mount forward (+) or back (-). The rod lengthens or shortens with it, so the axle stays put.">LF lower, frame fore/aft</abbr></label><input type="range" id="k-ll-x" min="-12" max="12" step="0.125" value="0"><output id="k-ll-x-o"></output></div>
+      </fieldset>
+      <fieldset><legend>Front track bar</legend>
+        <label class="chk"><input type="checkbox" id="k-tbtog"> Move both ends together</label>
+        <div class="row"><label for="k-tb-a">Axle end (left)</label><input type="range" id="k-tb-a" min="-4" max="4" step="0.125" value="0"><output id="k-tb-a-o"></output></div>
+        <div class="row"><label for="k-tb-c">Frame end (right)</label><input type="range" id="k-tb-c" min="-4" max="4" step="0.125" value="0"><output id="k-tb-c-o"></output></div>
+      </fieldset>
+      </div>
+
+      <div class="pane" id="k-rear" hidden>
+      <fieldset><legend>Jacobs ladder</legend>
+        <div class="row"><label for="r-lad"><abbr title="Length of the ladder's long tube, in. If the straps cannot reach with the housing centred, the rear end moves right and the note says how much spacing puts the wheels back.">Ladder, in</abbr></label><select id="r-lad">
+          <option value="12.80">13 1/4</option>
+          <option value="13.15625">13 5/8</option>
+          <option value="13.50">14</option></select><span></span></div>
+        <div class="row"><label for="r-strap"><abbr title="Strap length, in.">Straps, in</abbr></label><select id="r-strap">
+          <option value="6">6</option><option value="7">7</option><option value="8">8</option></select><span></span></div>
+        <div class="row"><label for="r-clev"><abbr title="Which of the three holes in the clevis goes on the birdcage pin, 5/8 in apart. It moves the ladder up or down on the birdcage and nothing else - the chassis strap holes stay put. This is the rear roll center height adjuster.">Clevis hole</abbr></label><select id="r-clev">
+          <option value="-0.625">Low</option><option value="0">Mid</option><option value="0.625">High</option></select><span></span></div>
+        <div class="row"><label for="r-pitch"><abbr title="Spacing of the holes in the chassis bracket. The strap holes snap to this pattern, which is lined up on the CAD's own holes.">Bracket holes, in</abbr></label><select id="r-pitch">
+          <option value="0.25">1/4</option><option value="0.375">3/8</option><option value="0.5">1/2</option>
+          <option value="0.625">5/8</option><option value="0.75">3/4</option><option value="1">1</option></select><span></span></div>
+        <div class="row"><label for="r-hu"><abbr title="Move the upper strap up (+) or down (-) by whole holes from the one the model picked. Off that hole the rear end moves; the read-out shows how far.">Upper strap hole</abbr></label><input type="range" id="r-hu" min="-6" max="6" step="1" value="0"><output id="r-hu-o"></output></div>
+        <div class="row"><label for="r-hl"><abbr title="Move the lower strap up (+) or down (-) by whole holes from the one the model picked.">Lower strap hole</abbr></label><input type="range" id="r-hl" min="-6" max="6" step="1" value="0"><output id="r-hl-o"></output></div>
+        <p class="note" id="lad-note"></p>
+      </fieldset>
+      <fieldset><legend>Rear wheel spacing</legend>
+        <div class="row"><label for="r-wl">LR out, in</label><input type="range" id="r-wl" min="-2" max="4" step="0.125" value="0"><output id="r-wl-o"></output></div>
+        <div class="row"><label for="r-wr">RR out, in</label><input type="range" id="r-wr" min="-2" max="4" step="0.125" value="0"><output id="r-wr-o"></output></div>
+        <p class="note" id="track-note" hidden></p>
+      </fieldset>
+      <fieldset><legend>Birdcage clocking</legend>
+        <div class="row"><label for="r-clk-l">LR, &deg;</label><input type="range" id="r-clk-l" min="-25" max="25" step="0.1" value="0"><output id="r-clk-l-o"></output></div>
+        <div class="row"><label for="r-clk-r">RR, &deg;</label><input type="range" id="r-clk-r" min="-25" max="25" step="0.1" value="0"><output id="r-clk-r-o"></output></div>
+      </fieldset>
+      <fieldset><legend>Rear top radius rods</legend>
+        <div class="row"><label for="r-lt-c">LR, frame</label><input type="range" id="r-lt-c" min="-3" max="3" step="0.125" value="0"><output id="r-lt-c-o"></output></div>
+        <div class="row"><label for="r-lt-a">LR, birdcage</label><input type="range" id="r-lt-a" min="-3" max="3" step="0.125" value="0"><output id="r-lt-a-o"></output></div>
+        <div class="row"><label for="r-lt-x"><abbr title="Move the frame mount forward (+) or back (-). The rod lengthens or shortens with it, so the axle stays put.">LR, frame fore/aft</abbr></label><input type="range" id="r-lt-x" min="-12" max="12" step="0.125" value="0"><output id="r-lt-x-o"></output></div>
+        <div class="row"><label for="r-rt-c">RR, frame</label><input type="range" id="r-rt-c" min="-3" max="3" step="0.125" value="0"><output id="r-rt-c-o"></output></div>
+        <div class="row"><label for="r-rt-a">RR, birdcage</label><input type="range" id="r-rt-a" min="-3" max="3" step="0.125" value="0"><output id="r-rt-a-o"></output></div>
+        <div class="row"><label for="r-rt-x"><abbr title="Move the frame mount forward (+) or back (-). The rod lengthens or shortens with it, so the axle stays put.">RR, frame fore/aft</abbr></label><input type="range" id="r-rt-x" min="-12" max="12" step="0.125" value="0"><output id="r-rt-x-o"></output></div>
+        <div class="row"><label for="r-lt-l"><abbr title="Turn the LR rod end in (-) or out (+). Unlike moving a hole, this changes the rod's length, so the birdcage swings and the axle steers.">LR, length</abbr></label><input type="range" id="r-lt-l" min="-2" max="2" step="0.0625" value="0"><output id="r-lt-l-o"></output></div>
+        <div class="row"><label for="r-rt-l"><abbr title="Turn the RR rod end in (-) or out (+).">RR, length</abbr></label><input type="range" id="r-rt-l" min="-2" max="2" step="0.0625" value="0"><output id="r-rt-l-o"></output></div>
+      </fieldset>
+      </div>
+
+      <fieldset><legend>Move the car</legend>
+        <div class="row"><label for="k-heave">Heave, in</label><input type="range" id="k-heave" min="-3" max="3" step="0.05" value="0"><output id="k-heave-o"></output></div>
+        <div class="row"><label for="k-roll">Roll, &deg;</label><input type="range" id="k-roll" min="-4" max="4" step="0.05" value="0"><output id="k-roll-o"></output></div>
+        <div class="btnrow"><button id="k-sweep">Sweep bump and droop</button><button id="k-zero">Back to ride height</button></div>
+      </fieldset>
+
+      <div class="pane" id="k-front-out">
+      <fieldset><legend>Front at this position</legend>
+        <table class="k"><thead><tr><th></th><th>LF</th><th>RF</th></tr></thead><tbody id="kf-tab"></tbody></table>
+      </fieldset>
+      <fieldset><legend>Parts resized to hold ride height</legend>
+        <table class="k"><tbody id="kf-parts"></tbody></table>
+      </fieldset>
+      </div>
+
+      <div class="pane" id="k-rear-out" hidden>
+      <fieldset><legend>Rear at this position</legend>
+        <table class="k"><tbody id="kr-tab"></tbody></table>
+        <p class="note" id="kr-note"></p>
+      </fieldset>
+      </div>
+
+      <details><summary>How this is solved</summary>
+        Both ends are a rigid axle on links, so there is one solver and both ends use it: set the axle's heave and roll against the chassis, then solve the rest of its position from the link lengths. The front beam axle has three radius rods and a track bar &mdash; four links, which leaves exactly the heave and roll we set. Steering is a drag link from the pitman arm to the LF steering arm and then a tie rod across to the RF, and because the pitman arm is bolted to the chassis the front steers itself as the axle moves: that is the front bump steer, and most of it comes from the track bar scrubbing the axle sideways. Camber to the ground does not change in roll, because a beam axle stays square to the track &mdash; what changes is camber relative to the chassis. The rear has a top radius rod and a torsion bar arm per side, both on a birdcage that turns on the axle tube, plus the Jacobs ladder, which goes in as a lateral constraint only because its triangle is pinned to the right-rear hub. The birdcage rotations are solved along with the axle, and indexing a birdcage turns its mounting ears on the tube before any of that. Anti-dive and anti-squat are measured off the solved motion, as the fore and aft travel of the contact patch per inch of vertical travel, times wheelbase over CG height (and the brake share at the front) &mdash; which is the same thing as the side-view link angle but works for any linkage, including a front end with one rod on the left and two on the right. The front roll center is where the track bar crosses the centerline; the rear is where the two ladder straps cross. When you move a mounting hole the axle stays at its ride-height position and the link length changes to fit, the way it does on the car.
+      </details>
+    </div>
+  </aside>
+</div>
+
+<script src="lib/three.min.js"></script>
+<script src="lib/GLTFLoader.js"></script>
+<script src="lib/OrbitControls.js"></script>
+<script src="axle.js"></script>
+<script src="app.js"></script>
+<script>
+// keep the launcher alive while this window is open
+setInterval(()=>fetch('/ping',{method:'POST'}).catch(()=>{}),2000);fetch('/ping',{method:'POST'}).catch(()=>{});
+addEventListener('pagehide',()=>{try{navigator.sendBeacon('/bye')}catch(e){}});
+</script>
